@@ -9,3 +9,5 @@ It generates a iCalendar file based on the “Published At” timestamp of Hugo 
 ```
 go build && ./hugo-post-calendar --source="/Users/philipp/Blog/annoying.technology" --destination="annoying-technology.ics"
 ```
+
+Or just use the binary on the [Releases](https://github.com/annoying-technology/hugo-post-calendar/releases) page.
