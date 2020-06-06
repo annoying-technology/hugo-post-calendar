@@ -41,7 +41,11 @@ func main() {
 	)
 
 	if *hugoSourceDirectory == "" {
-		fmt.Println("hugo source directory can't be empty, specify with --source")
+		wd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+		*hugoSourceDirectory = wd
 	}
 
 	// All posts should be included, even the ones in the future (flag: "future")
