@@ -11,6 +11,7 @@ import (
 	"time"
 
 	ics "github.com/arran4/golang-ical"
+
 	"github.com/peterbourgon/ff"
 
 	"github.com/gocarina/gocsv"
@@ -76,14 +77,22 @@ func main() {
 
 }
 
+// createCalendarFeed creates an ics string based on all the posts.
 func createCalendarFeed(posts []post) (string, error) {
 	cal := ics.NewCalendar()
-	cal.SetMethod(ics.MethodRequest)
+
+	// If this is set and there are multiple entries in a calendar Calendar.app
+	// freaks out: https://github.com/arran4/golang-ical/issues/19. Validators don't catch this...
+	//cal.SetMethod(ics.MethodRequest)
 
 	for _, p := range posts {
 		location, err := time.LoadLocation("Europe/Berlin")
 		if err != nil {
 			fmt.Println(err)
+			continue
+		}
+
+		if !(strings.Contains(p.Permalink, "6b47f951d2903438") || strings.Contains(p.Permalink, "885c68a91ffb6b49")) {
 			continue
 		}
 
@@ -93,6 +102,7 @@ func createCalendarFeed(posts []post) (string, error) {
 			event.SetDtStampTime(p.PublishDate)
 			event.SetModifiedAt(p.PublishDate)
 			event.SetStartAt(p.PublishDate.In(location))
+			event.SetOrganizer("Annoying.Technology")
 			//event.SetEndAt(time.Now())
 			event.SetSummary(getPrefix(p.Draft) + "✔︎ Post scheduled")
 			//event.SetLocation(p.Permalink)
@@ -125,3 +135,40 @@ func getPrefix(isDraft bool) string {
 		return ""
 	}
 }
+
+// createCalendarFeed implements this with the ical (github.com/lestrrat-go/ical) library
+//func createCalendarFeed(posts []post) (string, error) {
+//	c := ical.New()
+//	c.AddProperty("SUMMARY", "Post scheduled")
+//	tz := ical.NewTimezone()
+//	tz.AddProperty("TZID", "Europe/Berlin")
+//	c.AddEntry(tz)
+//
+//	for _, p := range posts {
+//		if !(strings.Contains(p.Permalink, "6b47f951d2903438") || strings.Contains(p.Permalink, "885c68a91ffb6b49")) {
+//			continue
+//		}
+//		event := ical.NewEvent()
+//		event.AddProperty("uid", p.Permalink)
+//		event.AddProperty("summary", "✔︎ Post scheduled")
+//		event.AddProperty("description", "A new post is scheduled to appear on annoying.technology.")
+//		event.AddProperty("url", p.Permalink)
+//
+//		_, dtCreated := FormatDateTime("CREATED", p.PublishDate)
+//		event.AddProperty("created", dtCreated)
+//
+//		_, dtStart := FormatDateTime("DTSTART", p.PublishDate)
+//		event.AddProperty("dtstart", dtStart)
+//
+//		// If no end is set it's 1h long
+//		//_, dtEnd := FormatDateTime("DTEND", p.PublishDate)
+//		//event.AddProperty("dtend", dtEnd)
+//		c.AddEntry(event)
+//	}
+//	return c.String(), nil
+//}
+
+//// FormatDateTime as "DTSTART:19980119T070000Z"
+//func FormatDateTime(key string, val time.Time) (string, string) {
+//	return key, val.UTC().Format("20060102T150405Z")
+//}
