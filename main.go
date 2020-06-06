@@ -96,10 +96,6 @@ func createCalendarFeed(posts []post) (string, error) {
 			continue
 		}
 
-		if !(strings.Contains(p.Permalink, "6b47f951d2903438") || strings.Contains(p.Permalink, "885c68a91ffb6b49")) {
-			continue
-		}
-
 		if strings.Contains(p.Permalink, "posts") {
 			event := cal.AddEvent(p.Permalink)
 			event.SetCreatedTime(p.PublishDate)
